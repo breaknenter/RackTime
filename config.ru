@@ -1,5 +1,5 @@
 require 'rack'
-require './time_app'
+require_relative 'time_app'
 
 use Rack::Reloader, 0
 
