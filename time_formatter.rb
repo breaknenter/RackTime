@@ -1,8 +1,6 @@
 require 'time'
 
 class TimeFormatter
-  attr_reader :wrong
-
   VALUES = {
     year:   '%Y',
     month:  '%m',
@@ -20,11 +18,11 @@ class TimeFormatter
   end
 
   def right?
-    wrong.empty?
+    @wrong.empty?
   end
 
   def to_s
-    Time.now.strftime(@right)
+    right? ? Time.now.strftime(@right) : @wrong
   end
 
   private

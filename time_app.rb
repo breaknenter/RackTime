@@ -15,15 +15,11 @@ class TimeApp
   private
 
   def router(path, params)
-    if params
       case path
       when '/time'   then time(params)
       when '/wakeup' then response(wake_up)
       else response(not_found, 404)
       end
-    else
-      response(prompt)
-    end
   end
 
   def response(body, status = 200 , headers = { 'Content-Type' => 'text/plain' })
@@ -31,12 +27,14 @@ class TimeApp
   end
 
   def time(csv)
+    return response(prompt) if csv.nil?
+
     time = TimeFormatter.new(csv)
 
     if time.right?
       response("Time: #{time}")
     else
-      response("Wrong time format: [#{time.wrong}]", 400)
+      response("Wrong time format: [#{time}]", 400)
     end
   end
 
