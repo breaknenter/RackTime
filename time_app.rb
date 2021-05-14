@@ -5,31 +5,39 @@ class TimeApp
     request = Rack::Request.new(env)
 
     if request.get?
-      params = request.params['format']
       path   = request.path_info
+      params = request.params['format']
 
-      case path
-      when '/time'
-        unless params.nil?
-          time = TimeFormatter.new(params)
-
-          time.valid? ? response(time.format) :
-                        response(time.wrong_format, 400)
-        else
-          response(prompt)
-        end
-      when '/wakeup'
-        response(wake_up)
-      else
-        response(not_found, 404)
-      end
+      router(path, params)
     end
   end
 
   private
 
+  def router(path, params)
+    if params
+      case path
+      when '/time'   then time(params)
+      when '/wakeup' then response(wake_up)
+      else response(not_found, 404)
+      end
+    else
+      response(prompt)
+    end
+  end
+
   def response(body, status = 200 , headers = { 'Content-Type' => 'text/plain' })
     Rack::Response.new(body, status, headers).finish
+  end
+
+  def time(csv)
+    time = TimeFormatter.new(csv)
+
+    if time.right?
+      response("Time: #{time}")
+    else
+      response("Wrong time format: [#{time.wrong}]", 400)
+    end
   end
 
   def prompt

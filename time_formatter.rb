@@ -1,6 +1,8 @@
 require 'time'
 
 class TimeFormatter
+  attr_reader :wrong
+
   VALUES = {
     year:   '%Y',
     month:  '%m',
@@ -11,27 +13,29 @@ class TimeFormatter
   }.freeze
 
   def initialize(csv)
-    @values = csv.split(',').map(&:to_sym)
-    @wrong  = @values - VALUES.keys
+    values = csv.split(',').map(&:to_sym)
+
+    @right = get_right(values)
+    @wrong = get_wrong(values)
   end
 
-  def valid?
-    @wrong.empty?
+  def right?
+    wrong.empty?
   end
 
-  def format
-    fstr = ''
-
-    VALUES.each { |key, val| fstr << "#{val}-" if @values.include?(key) }
-
-    time = Time.now.strftime(fstr[0..-2])
-
-    "Time: #{time}\n"
+  def to_s
+    Time.now.strftime(@right)
   end
 
-  def wrong_format
-    values = @wrong.join(', ')
+  private
 
-    "Wrong time format: [#{values}]\n"
+  def get_right(values)
+    (values & VALUES.keys).each_with_object([]) do |key, arr|
+      arr << VALUES[key]
+    end.join('-')
+  end
+
+  def get_wrong(values)
+    (values - VALUES.keys).join(', ')
   end
 end
