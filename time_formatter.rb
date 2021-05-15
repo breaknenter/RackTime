@@ -11,29 +11,33 @@ class TimeFormatter
   }.freeze
 
   def initialize(csv)
-    values = csv.split(',').map(&:to_sym)
+    @csv   = csv
+    @right = []
+    @wrong = []
+  end
 
-    @right = get_right(values)
-    @wrong = get_wrong(values)
+  def call
+    values = @csv.split(',').map(&:to_sym)
+
+    values.each do |value|
+      if VALUES[value]
+        @right << VALUES[value]
+      else
+        @wrong << value
+      end
+    end
   end
 
   def right?
     @wrong.empty?
   end
 
-  def to_s
-    right? ? Time.now.strftime(@right) : @wrong
+  def format
+    str = @right.join('-')
+    Time.now.strftime(str)
   end
 
-  private
-
-  def get_right(values)
-    (values & VALUES.keys).each_with_object([]) do |key, arr|
-      arr << VALUES[key]
-    end.join('-')
-  end
-
-  def get_wrong(values)
-    (values - VALUES.keys).join(', ')
+  def wrong
+    @wrong.join(', ')
   end
 end
